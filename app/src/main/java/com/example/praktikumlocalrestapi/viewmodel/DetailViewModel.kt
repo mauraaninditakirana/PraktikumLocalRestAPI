@@ -33,7 +33,6 @@ class DetailViewModel(
 
     var statusUiDetail: StatusUiDetail by mutableStateOf(StatusUiDetail.Loading)
         private set
-
     init {
         getSatuSiswa()
     }
