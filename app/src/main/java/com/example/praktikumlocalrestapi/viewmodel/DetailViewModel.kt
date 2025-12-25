@@ -1,7 +1,6 @@
 @file:OptIn(InternalSerializationApi::class)
 package com.example.praktikumlocalrestapi.viewmodel
 
-
 import android.annotation.SuppressLint
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,18 +14,22 @@ import com.example.praktikumlocalrestapi.uicontroller.route.DestinasiDetail
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import retrofit2.HttpException
-import retrofit2.Response
 import java.io.IOException
 
+
 sealed interface StatusUiDetail {
-    data class Success(val dataSiswa: DataSiswa) : StatusUiDetail
+    data class Success(val satuSiswa: DataSiswa) : StatusUiDetail
     object Error : StatusUiDetail
     object Loading : StatusUiDetail
 }
 
-class DetailViewModel(savedStateHandle: SavedStateHandle, private val repositoryDataSiswa: RepositoryDataSiswa): ViewModel() {
+class DetailViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val repositoryDataSiswa: RepositoryDataSiswa
+) : ViewModel() {
 
-    private val idSiswa: Int = checkNotNull(savedStateHandle[DestinasiDetail.itemIdArg])
+    private val idSiswa: Int =
+        checkNotNull(savedStateHandle[DestinasiDetail.itemIdArg])
 
     var statusUiDetail: StatusUiDetail by mutableStateOf(StatusUiDetail.Loading)
         private set
@@ -34,12 +37,13 @@ class DetailViewModel(savedStateHandle: SavedStateHandle, private val repository
     init {
         getSatuSiswa()
     }
-
     fun getSatuSiswa() {
         viewModelScope.launch {
             statusUiDetail = StatusUiDetail.Loading
             statusUiDetail = try {
-                StatusUiDetail.Success(dataSiswa = repositoryDataSiswa.getSatuSiswa(idSiswa))
+                StatusUiDetail.Success(
+                    satuSiswa = repositoryDataSiswa.getSatuSiswa(idSiswa)
+                )
             } catch (e: IOException) {
                 StatusUiDetail.Error
             } catch (e: HttpException) {
@@ -48,14 +52,15 @@ class DetailViewModel(savedStateHandle: SavedStateHandle, private val repository
         }
     }
 
-    @SuppressLint("SuspiciousIndentation")
-    suspend fun hapusSatuSiswa() {
-        val resp: Response<Void> = repositoryDataSiswa.hapusSatuSiswa(idSiswa)
 
-        if (resp.isSuccessful){
-            println("Sukses Hapus Data : ${resp.message()}")
-        } else {
-            println("Gagal Hapus Data : ${resp.errorBody()}")
+    @SuppressLint("SuspiciousIndentation")
+    fun hapusSatuSiswa() {
+        viewModelScope.launch {
+            try {
+                repositoryDataSiswa.hapusSatuSiswa(idSiswa)
+            } catch (e: Exception) {
+
+            }
         }
     }
 }
